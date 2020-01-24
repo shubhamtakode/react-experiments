@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import TargetMaterialCategoryColumn from "./TargetMaterialCategoryColumn/TargetMaterialCategoryColumn";
 import TargetMaterialColumn from "./TargetMaterialColumn/TargetMaterialColumn";
+import TargetColumn from "./TargetColumn/TargetColumn";
 
 class Target extends Component {
 
@@ -9,37 +10,48 @@ class Target extends Component {
             {
                 name: 'Recyclable Plastic',
                 img: '',
-                qty: null,
+                qty: 0,
                 id: 1,
-                items: [
+                targetItems: [
                     {
                         name: 'Monitor',
                         img: '',
-                        qty: null,
+                        qty: 1,
                         id: 2,
+                        stateWiseTargetItemList: [{
+                            name: 'Maharashtra',
+                            stateId: 3,
+                            districtWiseTargetItemList: [
+                                {
+                                    name: 'Pune',
+                                    qty: 0,
+                                    districtId: 4
+                                }
+                            ]
+                        }]
                     },
                     {
                         name: 'Printer',
                         img: '',
-                        qty: null,
+                        qty: 2,
                         id: 3,
                     }
                 ]
             },
-            {
+            /*{
                 name: 'Non-Recyclable Plastic',
                 img: '',
-                qty: null,
+                qty: 3,
                 id: 4,
-                items: [
+                targetItems: [
                     {
-                        name: 'Monitor',
+                        name: 'N Monitor',
                         img: '',
                         qty: null,
                         id: 5
                     },
                     {
-                        name: 'Printer',
+                        name: 'N Printer',
                         img: '',
                         qty: null,
                         id: 6
@@ -49,29 +61,31 @@ class Target extends Component {
             {
                 name: 'E-Waste',
                 img: '',
-                qty: null,
+                qty: 4,
                 id: 7,
-                items: [
+                targetItems: [
                     {
-                        name: 'Monitor',
+                        name: 'E Monitor',
                         img: '',
                         qty: null,
                         id: 8
                     },
                     {
-                        name: 'Printer',
+                        name: 'E Printer',
                         img: '',
                         qty: null,
                         id: 9
                     }
                 ]
-            }
+            }*/
         ],
         columns: {
             showCategoryColumn: true,
-            showItemColumn: null,
-            showStateColumn: null,
-            showDistrictColumn: null,
+            selectedCategory: null,
+            selectedItem: null,
+            selectedState: null,
+            selectedCity: null,
+            selectedDistrict: null,
             showQtyEdit: null
         }
     };
@@ -88,40 +102,92 @@ class Target extends Component {
                 ) : (null)
             }
             {
-
-                this.state.columns.showItemColumn ? (
+                this.state.columns.selectedCategory ? (
                     <TargetMaterialColumn key={'material-column'}
                                           heading={'Material'}
-                                          items={this.state.columns.showItemColumn}
+                                          items={this.state.catalogData.find((cat) => {
+                                              return cat.id === this.state.columns.selectedCategory
+                                          }).targetItems}
                                           itemClicked={this.itemClicked}>
                     </TargetMaterialColumn>
                 ) : (null)
+            }
+            {
+                this.state.columns.showQtyEdit ? (
+                    <TargetColumn heading={'Target'} defaultQty={this.state.columns.showQtyEdit.defaultQty} validationQty={this.state.columns.showQtyEdit.validationQty} updateQty={this.updateQty}></TargetColumn>) : (null)
             }
 
         </div>
     }
 
-    categoryClicked = (childItems) => {
+    categoryClicked = (id) => {
         const columnsToShow = {
             ...this.state.columns
         };
-        columnsToShow.showItemColumn = childItems;
+        columnsToShow.selectedCategory = id;
+        columnsToShow.selectedItem = null;
+        columnsToShow.selectedState = null;
+        columnsToShow.selectedCity = null;
+        columnsToShow.selectedDistrict = null;
+        columnsToShow.showQtyEdit = false;
+
         this.setState({
             columns: columnsToShow
         });
         console.log(this.state);
+    };
+
+    itemClicked = (id, qty) => {
+        const columnsToShow = {
+            ...this.state.columns
+        };
+        columnsToShow.selectedItem = id;
+        columnsToShow.selectedState = null;
+        columnsToShow.selectedCity = null;
+        columnsToShow.selectedDistrict = null;
+        columnsToShow.showQtyEdit = {
+            defaultQty: qty,
+            validationQty: qty
+        };
+        this.setState({
+            columns: columnsToShow
+        });
+    };
+
+    updateQty = (qty) => {
+        if(this.state.columns.selectedCategory) {
+            const catalogCopy = [...this.state.catalogData];
+            catalogCopy.forEach((cat, catIndex) => {
+                if(cat.id === this.state.columns.selectedCategory) {
+                    cat.targetItems.forEach((item, itemIndex) => {
+                        if(item.id === this.state.columns.selectedItem) {
+                            catalogCopy[catIndex].targetItems[itemIndex].qty = Number(qty);
+                        }
+                        catalogCopy[catIndex].qty = catalogCopy[catIndex].qty + catalogCopy[catIndex].targetItems[itemIndex].qty;
+                    });
+                }
+            });
+            this.setState({
+                catalogData: catalogCopy
+            });
+            console.log(catalogCopy);
+        }
+    };
+
+    getSelectedItemQty = () => {
+        if(this.state.columns.selectedCategory && this.state.columns.selectedItem) {
+            return this.state.catalogData.find((cat) => {
+                return cat.id === this.state.columns.selectedCategory
+            }).targetItems.map((item) => {
+                return item.id === this.state.columns.selectedItem;
+            }).qty;
+        } else {
+            return 0;
+        }
     }
 
-    itemClicked = (childItems) => {
-        const columnsToShow = {
-            ...this.state.columns
-        };
-        columnsToShow.showQtyEdit = true;
-        this.setState({
-            columns: columnsToShow
-        });
-        console.log(this.state);
-    }
+
+
 }
 
 export default Target;

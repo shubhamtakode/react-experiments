@@ -1,12 +1,12 @@
 import React from "react";
-import TargetItem from "../TargetItem/TargetItem";
+import ColumnRow from "../ColumnRow/ColumnRow"
 import "./TargetMaterialCategoryColumn.scss";
 const  targetMaterialCategoryColumn = (props) => {
 
     let itemsList = [];
     if(props.items) {
         itemsList = props.items.map((item) =>{
-            return  <TargetItem onItemClick={props.categoryClicked} name={item.name} img={item.img} qty={item.qty} childs={item.items} key={item.id}></TargetItem>;
+            return  <ColumnRow onItemClick={props.categoryClicked} name={item.name} img={item.img} qty={item.qty} childs={item.items} key={item.id} id={item.id}></ColumnRow>;
         })
     }
     return <div className={'target-column border-right'}>

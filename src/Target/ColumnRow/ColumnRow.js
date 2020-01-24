@@ -10,10 +10,11 @@ const columnRow = (props) => {
         classes = classes + " bg-light";
     }
 
-    return <li className={classes} onClick={() => {props.onItemClick(props.childs)}}>
+    return <li className={classes} onClick={() => {props.onItemClick(props.id, props.qty)}}>
         <img src={props.img}/>
         <span className={'p-2'}>{props.name}</span>
         <span className="ml-auto p-2">
+                <span>{props.qty}</span>
                 <FontAwesomeIcon icon={faCaretRight} className={'text-light'} />
             </span>
     </li>
